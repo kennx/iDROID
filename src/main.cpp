@@ -10,6 +10,8 @@ constexpr std::uint32_t kStaleTimeoutMs = 2000;
 constexpr std::size_t kNmeaBufferSize = 160;
 constexpr std::size_t kMaxSerialBytesPerLoop = 128;
 constexpr int kLineHeight = 18;
+constexpr int kGnssUartRxPin = 15;
+constexpr int kGnssUartTxPin = 13;
 
 GnssState g_state{};
 UiRenderer g_renderer{};
@@ -66,7 +68,7 @@ void setup() {
   cfg.serial_baudrate = 115200;
   M5.begin(cfg);
 
-  Serial1.begin(115200);
+  Serial1.begin(115200, SERIAL_8N1, kGnssUartRxPin, kGnssUartTxPin);
   M5.Display.setTextSize(2);
   M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
   M5.Display.fillScreen(TFT_BLACK);
