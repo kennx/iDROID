@@ -47,12 +47,12 @@ void drawLineIfDirty(bool dirty, int y, const std::string& text) {
     return;
   }
 
-  M5.Display.fillRect(0, y, M5.Display.width(), kLineHeight, TFT_BLACK);
   M5.Display.setCursor(0, y + 2);
   M5.Display.print(text.c_str());
 }
 
 void drawFrame(const RenderFrame& frame) {
+  M5.Display.startWrite();
   drawLineIfDirty(frame.dirty.status, 0 * kLineHeight, frame.status);
   drawLineIfDirty(frame.dirty.latitude, 1 * kLineHeight, frame.latitude);
   drawLineIfDirty(frame.dirty.longitude, 2 * kLineHeight, frame.longitude);
@@ -60,6 +60,7 @@ void drawFrame(const RenderFrame& frame) {
   drawLineIfDirty(frame.dirty.cog, 4 * kLineHeight, frame.cog);
   drawLineIfDirty(frame.dirty.heading, 5 * kLineHeight, frame.heading);
   drawLineIfDirty(frame.dirty.utc, 6 * kLineHeight, frame.utc);
+  M5.Display.endWrite();
 }
 }  // namespace
 
