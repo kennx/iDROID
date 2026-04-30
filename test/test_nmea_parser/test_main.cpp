@@ -45,7 +45,7 @@ void test_parse_rmc_updates_utc_and_cog() {
   GnssState state{};
 
   const bool ok = parseNmeaSentence(
-      "$GPRMC,092204.999,A,4250.5589,N,08339.4335,W,000.0,054.7,191194,020.3,E*68", 2000,
+      "$GPRMC,092204.999,A,4250.5589,N,08339.4335,W,000.0,054.7,191194,020.3,E*7E", 2000,
       state);
 
   TEST_ASSERT_TRUE(ok);
@@ -67,7 +67,7 @@ void test_parse_rmc_void_status_clears_fix_and_cog_valid() {
   state.cog_valid = true;
 
   const bool ok = parseNmeaSentence(
-      "$GPRMC,092205.000,V,4250.5589,N,08339.4335,W,000.0,054.7,191194,020.3,E*53", 3000,
+      "$GPRMC,092205.000,V,4250.5589,N,08339.4335,W,000.0,054.7,191194,020.3,E*61", 3000,
       state);
 
   TEST_ASSERT_TRUE(ok);
@@ -179,6 +179,21 @@ void test_parse_gga_with_invalid_hemisphere_fails_and_keeps_state() {
   assert_state_equals(expected, state);
 }
 
+void test_parse_sentence_with_bad_checksum_fails_and_keeps_state() {
+  GnssState state{};
+  state.fix_valid = true;
+  state.latitude = 12.34;
+  state.last_update_ms = 42;
+  const GnssState expected = state;
+
+  const bool ok = parseNmeaSentence(
+      "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*00", 8000,
+      state);
+
+  TEST_ASSERT_FALSE(ok);
+  assert_state_equals(expected, state);
+}
+
 int main(int argc, char** argv) {
   UNITY_BEGIN();
 
@@ -190,6 +205,7 @@ int main(int argc, char** argv) {
   RUN_TEST(test_parse_gga_with_utc_trailing_char_fails_and_keeps_utc_state);
   RUN_TEST(test_parse_rmc_with_non_numeric_latitude_fails_and_keeps_state);
   RUN_TEST(test_parse_gga_with_invalid_hemisphere_fails_and_keeps_state);
+  RUN_TEST(test_parse_sentence_with_bad_checksum_fails_and_keeps_state);
 
   return UNITY_END();
 }

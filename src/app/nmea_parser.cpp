@@ -7,6 +7,53 @@
 namespace {
 constexpr int kMaxFields = 32;
 
+int hexNibble(char ch) {
+  if (ch >= '0' && ch <= '9') {
+    return ch - '0';
+  }
+  if (ch >= 'A' && ch <= 'F') {
+    return 10 + (ch - 'A');
+  }
+  if (ch >= 'a' && ch <= 'f') {
+    return 10 + (ch - 'a');
+  }
+  return -1;
+}
+
+bool validateChecksum(char* sentence) {
+  if (sentence == nullptr || sentence[0] != '$') {
+    return false;
+  }
+
+  char* asterisk = std::strchr(sentence, '*');
+  if (asterisk == nullptr) {
+    return true;
+  }
+
+  if (asterisk[1] == '\0' || asterisk[2] == '\0' || asterisk[3] != '\0') {
+    return false;
+  }
+
+  int high = hexNibble(asterisk[1]);
+  int low = hexNibble(asterisk[2]);
+  if (high < 0 || low < 0) {
+    return false;
+  }
+
+  std::uint8_t expected = static_cast<std::uint8_t>((high << 4) | low);
+  std::uint8_t computed = 0;
+  for (char* p = sentence + 1; p < asterisk; ++p) {
+    computed ^= static_cast<std::uint8_t>(*p);
+  }
+
+  if (computed != expected) {
+    return false;
+  }
+
+  *asterisk = '\0';
+  return true;
+}
+
 int splitCsv(char* text, char* fields[], int max_fields) {
   int count = 0;
   char* p = text;
@@ -200,9 +247,8 @@ bool parseNmeaSentence(const char* sentence, std::uint32_t now_ms, GnssState& st
   char buffer[160] = {0};
   std::strncpy(buffer, sentence, sizeof(buffer) - 1);
 
-  char* checksum = std::strchr(buffer, '*');
-  if (checksum != nullptr) {
-    *checksum = '\0';
+  if (!validateChecksum(buffer)) {
+    return false;
   }
 
   char* fields[kMaxFields] = {nullptr};
