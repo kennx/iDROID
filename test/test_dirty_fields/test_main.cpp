@@ -92,6 +92,44 @@ void test_status_and_utc_changes_are_tracked() {
   TEST_ASSERT_TRUE(dirty.utc);
 }
 
+void test_altitude_dirty_when_fix_valid_toggles() {
+  GnssState previous{};
+  GnssState current{};
+  previous.fix_valid = false;
+  previous.altitude_m = 123.4;
+  current.fix_valid = true;
+  current.altitude_m = 123.4;
+
+  DirtyFields dirty = computeDirtyFields(previous, current);
+  TEST_ASSERT_TRUE(dirty.altitude);
+}
+
+void test_cog_dirty_when_cog_valid_toggles() {
+  GnssState previous{};
+  GnssState current{};
+  previous.cog_valid = false;
+  previous.cog_deg = 77.7;
+  current.cog_valid = true;
+  current.cog_deg = 77.7;
+
+  DirtyFields dirty = computeDirtyFields(previous, current);
+  TEST_ASSERT_TRUE(dirty.cog);
+}
+
+void test_status_ignores_last_update_ms_only_change() {
+  GnssState previous{};
+  GnssState current{};
+  previous.fix_valid = true;
+  previous.cog_valid = true;
+  previous.sats = 5;
+  previous.last_update_ms = 1000;
+  current = previous;
+  current.last_update_ms = 1001;
+
+  DirtyFields dirty = computeDirtyFields(previous, current);
+  TEST_ASSERT_FALSE(dirty.status);
+}
+
 int main(int argc, char **argv) {
   UNITY_BEGIN();
 
@@ -100,6 +138,9 @@ int main(int argc, char **argv) {
   RUN_TEST(test_numeric_thresholds_and_heading_behavior);
   RUN_TEST(test_cog_wraparound_uses_min_circular_delta);
   RUN_TEST(test_status_and_utc_changes_are_tracked);
+  RUN_TEST(test_altitude_dirty_when_fix_valid_toggles);
+  RUN_TEST(test_cog_dirty_when_cog_valid_toggles);
+  RUN_TEST(test_status_ignores_last_update_ms_only_change);
 
   return UNITY_END();
 }

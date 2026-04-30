@@ -21,12 +21,14 @@ DirtyFields computeDirtyFields(const GnssState& previous, const GnssState& curre
   DirtyFields dirty{};
 
   dirty.status = previous.fix_valid != current.fix_valid || previous.cog_valid != current.cog_valid ||
-                 previous.sats != current.sats || previous.last_update_ms != current.last_update_ms;
+                 previous.sats != current.sats;
 
   dirty.latitude = std::fabs(previous.latitude - current.latitude) > kLatLonThreshold;
   dirty.longitude = std::fabs(previous.longitude - current.longitude) > kLatLonThreshold;
-  dirty.altitude = std::fabs(previous.altitude_m - current.altitude_m) > kAltThreshold;
-  dirty.cog = circular_angle_delta_deg(previous.cog_deg, current.cog_deg) >
+  dirty.altitude = previous.fix_valid != current.fix_valid ||
+                   std::fabs(previous.altitude_m - current.altitude_m) > kAltThreshold;
+  dirty.cog = previous.cog_valid != current.cog_valid ||
+              circular_angle_delta_deg(previous.cog_deg, current.cog_deg) >
               (kCogThreshold + kThresholdEpsilon);
 
   dirty.heading = false;
