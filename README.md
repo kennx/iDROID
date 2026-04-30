@@ -1,5 +1,14 @@
 # GNSS 实时显示
 
+## 页面与按键操作
+- 默认页面：开机进入导航页（Nav）。
+- 进入 GNSS：在导航页按 `Enter`。
+- 返回导航：在 GNSS 页按 `BtnGO`（代码侧为 `M5.BtnA`）。
+- 进入 BT Keyboard：在导航页选中 `BT Keyboard` 后按 `Enter`。
+- BT Keyboard 输入：连接后可发送英文/符号，支持 `Enter`、`Backspace`、`Tab`、`Space`。
+- BT Keyboard 返回：按 `BtnGO` 返回导航页。
+- `BtnRST`：硬复位键，不参与业务交互。
+
 ## 输入输出
 - 输入：`Serial1` 接收 NMEA 语句（当前解析 `$GxGGA`、`$GxRMC`，按行 `\n` 结束）。
 - 输出：Cardputer 屏幕 7 行文本，显示 `FIX/SAT`、`LAT`、`LON`、`ALT`、`COG`、`HDG`、`UTC`。
@@ -26,7 +35,12 @@
 1. 连接 Cardputer-Adv 与 Cap LoRa-1262，并确保 GNSS 侧有 NMEA 输出。
 2. 执行构建：`pio run -e m5stack-stamps3`
 3. 执行烧录：`pio run -e m5stack-stamps3 -t upload`
-4. 观察屏幕 7 行字段是否随定位状态更新。
+4. 冷启动后确认默认显示导航页。
+5. 在导航页按 `Enter` 进入 GNSS 页。
+6. 在 GNSS 页按 `BtnGO` 返回导航页。
+7. 在导航页选择 `BT Keyboard` 并按 `Enter` 进入。
+8. 手机/电脑蓝牙搜索并连接 `iDROID-KBD`，验证键盘输入。
+9. 观察 GNSS 页 7 行字段是否随定位状态更新。
 
 ## 验证命令
 ```bash
